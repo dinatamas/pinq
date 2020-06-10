@@ -32,7 +32,6 @@ or files)
 Implementation details
 ======================
 
-
 * Linq is an iterable, not at iterator. It shouldn't have a `__next__` method.
 * Linq is also not a general container. We can't (and shouldn't) always guarantee random access.
 * Linq should have a similar API to that of IEnumerable.
@@ -45,6 +44,8 @@ Implementation details
 * Linq is merely storing a reference to the original iterable, so modifying that may also have side-effects
   (wanted or unwanted) on Linq. It may be worth to copy that (like RepeatableIterable?). Having said that,
   it's normal to have different references to the same data in memory, so it shouldn't be a problem.
+
+* self._iterable should be iterated instead of self, as it avoids a tiny bit of overhead. 
 
 Algorithm details:
 ------------------

@@ -47,11 +47,11 @@ class Pinq:
         perfectly and is implemented in C.
         """
         try:
-            result = functools.reduce(func, self, seed)
-        except TypeError as e:
+            result = functools.reduce(func, self._iterable, seed)
+        except TypeError:
             raise NoElementsError(
                 'Called Pinq.aggregate() on empty iterable without seed.'
-            ) from e
+            )
         if resultSelector is None:
             return result
         else:
@@ -65,7 +65,7 @@ class Pinq:
         All and map are builtins (implemented in C). Using map instead of a
         list comprehension is preferable because map returns a generator.
         """
-        return all(map(predicate, self))
+        return all(map(predicate, self._iterable))
     
     def any(self, predicate=None):
         """
@@ -76,9 +76,9 @@ class Pinq:
         list comprehension is preferable because map returns a generator.
         """
         if predicate is None:
-            return any(self)
+            return any(self._iterable)
         else:
-            return any(map(predicate, self))
+            return any(map(predicate, self._iterable))
     
     def append(self, element):
         """
@@ -90,7 +90,7 @@ class Pinq:
         produce a new iterable (in any way) but rather to chain two iterables.
         itertools.chain serves that purpose perfectly, and is implemented in C.
         """
-        return Pinq(itertools.chain(self, [element]))
+        return Pinq(itertools.chain(self._iterable, [element]))
     
     ### AsEnumerable is not required for Python! Yay!
 
@@ -112,12 +112,12 @@ class Pinq:
         required (because of the summation), the overhead of increasing a
         counter is relatively small compared to the overhead of double looping.
         """
-        if not self.any():
+        if not any(self._iterable):
             raise NoElementsError('Called Pinq.average() on empty iterable.')
         try:
             c = len(self._iterable)
         except TypeError:
-            it = iter(self)
+            it = iter(self._iterable)
             c = 1
             if func is None:
                 s = next(it)
@@ -125,7 +125,7 @@ class Pinq:
                     try: s = s + e
                     except TypeError: s = s + float(e)
                     except ValueError: raise UnsupportedIteratedType(
-                        'average() requires number-like iterated types that'
+                        'Pinq.average() requires number-like iterated types that'
                         ' support addition and division by int or can be'
                         ' converted to float.'
                     )
@@ -136,17 +136,17 @@ class Pinq:
                     try: s = s + func(e)
                     except TypeError: s = s + float(func(e))
                     except ValueError: raise UnsupportedIteratedType(
-                        'average() requires number-like iterated types that'
-                        ' support addition and division by int or can be'
+                        'Pinq.average() requires number-like iterated types'
+                        ' that support addition and division by int or can be'
                         ' converted to float.'
                     )
                     c += 1
         else:
             if func is None:
-                try: s = sum(self)
-                except: TypeError: s = sum(map(float, self))
+                try: s = sum(self._iterable)
+                except: TypeError: s = sum(map(float, self._iterable))
                 except: ValueError: raise UnsupportedIteratedType(
-                    'average() requires number-like iterated types that'
+                    'Pinq.average() requires number-like iterated types that'
                     ' support addition and division by int or can be converted'
                     ' to float.'
                 )
@@ -154,14 +154,14 @@ class Pinq:
                 try: s = sum(map(func, self))
                 except: TypeError: s = sum(map(func, map(float, self)))
                 except: ValueError: raise UnsupportedIteratedType(
-                    'average() requires number-like iterated types that'
+                    'Pinq.average() requires number-like iterated types that'
                     ' support addition and division by int or can be converted'
                     ' to float.'
                 )
         try: result = s / c
         except TypeError: result = float(s) / c
         except ValueError: raise UnsupportedIteratedType(
-            'average() requires number-like iterated types that'
+            'Pinq.average() requires number-like iterated types that'
             ' support addition and division by int or can be converted'
             ' to float.'
         )
@@ -181,7 +181,7 @@ class Pinq:
         """
         if not hasattr(other, '__iter__'):
             raise TypeError('Pinq.concat() must be called with an iterable.')
-        return Pinq(itertools.chain(self, other))
+        return Pinq(itertools.chain(self._iterable, other))
 
     def contains(self, value, comparer=None):
         """
@@ -207,7 +207,9 @@ class Pinq:
         if comparer is None:
             return value in self._iterable
         else:
-            return value in map(functools.partial(comparer, value), self)
+            return value in map(
+                functools.partial(comparer, value), self._iterable
+            )
     
     def count(self, predicate=None):
         """
