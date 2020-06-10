@@ -19,11 +19,15 @@ After this, you can use the same methods that are available in the .NET LINQ
 The performance of this library is comparable to that of the .NET implementation,
 as it not only directly resembles the API but also the implementation details.
 
-Please note that creating a Pinq object doesn't copy the iterable's contents,
+NOTE: Creating a Pinq object doesn't copy the iterable's contents,
 it only keeps a reference to the original iterable. Any changes to the original
 iterable will also affect Pinq. (Copying iterable contents wouldn't be possible
 in the case of infinite generators, and wouldn't be preferable in the case of
 files and network-backed iterables).
+
+NOTE: Some operations may enumerate the whole iterable, and therefore may be
+non-repeatable, if the iterable itself is not re-iterable. (Such as generators
+or files)
 
 Implementation details
 ======================
@@ -63,6 +67,7 @@ Todos
     * https://stackoverflow.com/questions/514068/extension-methods-in-python
     * These can't be used for builtins, but can be used to enable other users to 
     add specific functionality (optimisations) for their specific types for LINQ.
+* Handle infinite iterables (many methods will hit an infinite loop!)
 
 References
 ==========

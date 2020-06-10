@@ -218,9 +218,18 @@ class Pinq:
         count can't rely on that. It is still attempted for the potential
         performance gain.
         """
-        if hasattr(self._iterable, '__len__'):
-            return len(self)
-        raise NotImplementedError
+        if predicate is None:
+            if hasattr(self._iterable, '__len__'):
+                return len(self._iterable)
+            count = 0
+            for _ in self._iterable:
+                count += 1
+            return count
+        else:
+            count = 0
+            for _ in map(predicate, self._iterable):
+                count += 1
+            return count
 
 
 ########
