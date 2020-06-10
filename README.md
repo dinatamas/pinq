@@ -1,61 +1,33 @@
-This is a very slightly modified version of the py-enumerable project.
+# Python INtegrated Query
 
-All the credit goes to the original creators/contributors to that project.
+PINQ (Python INtegrated Query) is a library that strives to implement similar
+functionality to that of LINQ in the .NET environment.
 
-I occasionally check out the original project for updates, but still, I highly
-recommend you visit the GitHub repository https://github.com/viralogic/py-enumerable.
+LINQ can be - originally - used in two main scenarios:
+* On containers that implement the IEnumerable interface.
+* On query providers implementing IQueryable (such as DbSet in Entity Framework)
 
-Support extension methods:
-https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods
-https://stackoverflow.com/questions/514068/extension-methods-in-python
-* These can't be used for builtins, but can be used to enable other users to
-  add specific functionality (optimisations) for their specific types for LINQ.
+This repository currently implements the first scenario.
 
-PROBLEM! What if an iterable is not actually finite? What if an infinite generator.
-
-Names
+Usage
 =====
 
-* PyLinq, PyLINQ
-* PINQ (Python Integrated Query)
+To use this library, simply include the `pinq.py` file into your project.
+To be able to perform the queries, first convert the iterable to a Pinq object.
+After this, you can use the same methods that are available in the .NET LINQ
+(except for some that only make sense in a strong typed language).
+The performance of this library is comparable to that of the .NET implementation,
+as it not only directly resembles the API but also the implementation details.
 
-References
-==========
-
-LINQ
-----
-
-https://github.com/dotnet/runtime/tree/master/src/libraries/System.Linq/src/System/Linq
-
-* https://en.wikipedia.org/wiki/Language_Integrated_Query
-* https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/
-* https://github.com/Microsoft/referencesource/blob/master/System.Core/System/Linq/Enumerable.cs
-
-List of all operations:
-* https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable?view=netcore-3.1#methods
-* https://referencesource.microsoft.com/
-
-LINQ to Python
---------------
-
-* https://stackoverflow.com/questions/3925093/pythons-list-comprehension-vs-net-linq
-* https://www.markheath.net/post/python-equivalents-of-linq-methods
-
-
-Other implementations
----------------------
-
-* https://github.com/viralogic/py-enumerable
-* https://pypi.org/project/Linq/
-* In Javascript: https://github.com/mihaifm/linq
+Please note that creating a Pinq object doesn't copy the iterable's contents,
+it only keeps a reference to the original iterable. Any changes to the original
+iterable will also affect Pinq. (Copying iterable contents wouldn't be possible
+in the case of infinite generators, and wouldn't be preferable in the case of
+files and network-backed iterables).
 
 Implementation details
 ======================
 
-* Emulating container types: https://docs.python.org/3.8/reference/datamodel.html#emulating-container-types
-* Iterators: https://docs.python.org/3/tutorial/classes.html#iterators
-* Iterators: https://docs.python.org/dev/library/stdtypes.html#iterator-types
-* https://rszalski.github.io/magicmethods/#sequence
 
 * Linq is an iterable, not at iterator. It shouldn't have a `__next__` method.
 * Linq is also not a general container. We can't (and shouldn't) always guarantee random access.
@@ -71,29 +43,74 @@ Implementation details
   it's normal to have different references to the same data in memory, so it shouldn't be a problem.
 
 Algorithm details:
-    Prefer to use algorithms similar to that of the original C# implementation.
-    EXCEPT:
-        When there are any builtins (e.g. sum, all, etc.) or highly-optimized solutions (e.g. map)
-        that are very much optimized in Python (f.e. written in native C).
-        In that case, use them even if it seems to be overhead.
-        https://docs.python.org/3/library/functions.html
-        https://github.com/python/cpython/blob/master/Python/bltinmodule.c
+------------------
 
-        https://docs.python.org/3.8/library/functools.html
-        https://github.com/python/cpython/blob/master/Lib/functools.py
-        https://github.com/python/cpython/blob/master/Modules/_functoolsmodule.c
+Prefer to use algorithms similar to that of the original C# implementation.
+Except when there are any builtins (e.g. sum, all, etc.) or highly-optimized solutions (e.g. map)
+that are very much optimized in Python (f.e. written in native C).
+In that case, use them even if it seems to be overhead.
+List comprehensions are FINE. They are not written in C, but there's
+plenty of time to decide to use map/filter/etc. when needed LATER.
+Actually, they are not. List comprehensions are evaluated beforehand,
+generators such as the one returned by map are not.
 
-        https://docs.python.org/3.8/library/itertools.html
-        https://github.com/python/cpython/blob/master/Modules/itertoolsmodule.c
+Todos
+=====
 
-        List comprehensions are FINE. They are not written in C, but there's
-        plenty of time to decide to use map/filter/etc. when needed LATER.
-        Actually, they are not. List comprehensions are evaluated beforehand,
-        generators such as the one returned by map are not.
+* Support IQueryable usage and query providers.
+* Support extension methods:
+    * https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/extension-methods
+    * https://stackoverflow.com/questions/514068/extension-methods-in-python
+    * These can't be used for builtins, but can be used to enable other users to 
+    add specific functionality (optimisations) for their specific types for LINQ.
 
-Further reading:
-    * https://docs.python.org/3/library/collections.abc.html#module-collections.abc
-    * https://docs.python.org/3/glossary.html#term-asynchronous-iterable
-    * https://docs.python.org/3/glossary.html#term-iterable
+References
+==========
 
-TODO: Do IQueryable implementation as well! (With SQLite support?)
+Similar projects
+----------------
+
+* https://github.com/viralogic/py-enumerable
+
+LINQ
+----
+
+* https://github.com/dotnet/runtime/tree/master/src/libraries/System.Linq/src/System/Linq
+* https://en.wikipedia.org/wiki/Language_Integrated_Query
+* https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/
+* https://github.com/Microsoft/referencesource/blob/master/System.Core/System/Linq/Enumerable.cs
+
+### List of all operations:
+* https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable?view=netcore-3.1#methods
+* https://referencesource.microsoft.com/
+
+### LINQ to Python
+
+* https://stackoverflow.com/questions/3925093/pythons-list-comprehension-vs-net-linq
+* https://www.markheath.net/post/python-equivalents-of-linq-methods
+
+Other implementations
+---------------------
+
+* https://github.com/viralogic/py-enumerable
+* https://pypi.org/project/Linq/
+* In Javascript: https://github.com/mihaifm/linq
+
+Python reading (for implementation details)
+-------------------------------------------
+
+* https://docs.python.org/3/library/collections.abc.html#module-collections.abc
+* https://docs.python.org/3/glossary.html#term-asynchronous-iterable
+* https://docs.python.org/3/glossary.html#term-iterable
+* https://docs.python.org/3.8/reference/datamodel.html#emulating-container-types
+* https://docs.python.org/3/tutorial/classes.html#iterators
+* https://docs.python.org/dev/library/stdtypes.html#iterator-types
+* https://rszalski.github.io/magicmethods/#sequence
+
+* https://docs.python.org/3/library/functions.html
+* https://github.com/python/cpython/blob/master/Python/bltinmodule.c
+* https://docs.python.org/3.8/library/functools.html
+* https://github.com/python/cpython/blob/master/Lib/functools.py
+* https://github.com/python/cpython/blob/master/Modules/_functoolsmodule.c
+* https://docs.python.org/3.8/library/itertools.html
+* https://github.com/python/cpython/blob/master/Modules/itertoolsmodule.c
