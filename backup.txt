@@ -1,0 +1,39 @@
+        class AppendIterator(Linq):
+            def __init__(self, iterable, item):
+                self._iterable = iterable
+                self._item = item
+
+            def __iter__(self):
+                self._inner_iterator = iter(self._iterable)
+                self._item_visited = False
+                return self
+
+            def __next__(self):
+                try:
+                    return next(self._inner_iterator)
+                except StopIteration:
+                    if not self._item_visited:
+                        return item
+                    else:
+                        raise StopIteration
+
+
+        class ConcatIterator(Linq):
+            def __init__(self, first, second):
+                self._first = first
+                self._second = second
+
+            def __iter__(self):
+                self._inner_iterator = iter(self._first)
+                self._first_exhausted = False
+                return self
+
+            def __next__(self):
+                try:
+                    return next(self._inner_iterator)
+                except StopIteration:
+                    if not self._first_exhausted:
+                        self._inner_iterator = iter(self._second)
+                        return next(self._inner_iterator)
+                    else:
+                        raise StopIteration
