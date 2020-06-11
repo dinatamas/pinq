@@ -14,7 +14,11 @@ class NoElementsError(Exception):
     pass
 
 
-class UnsupportedIteratedType(Exception):
+class UnsupportedIteratedTypeError(Exception):
+    pass
+
+
+class OutOfRangeError(Exception):
     pass
 
 
@@ -124,7 +128,7 @@ class Pinq:
                 for e in it:
                     try: s = s + e
                     except TypeError: s = s + float(e)
-                    except ValueError: raise UnsupportedIteratedType(
+                    except ValueError: raise UnsupportedIteratedTypeError(
                         'Pinq.average() requires number-like iterated types that'
                         ' support addition and division by int or can be'
                         ' converted to float.'
@@ -135,7 +139,7 @@ class Pinq:
                 for e in it:
                     try: s = s + func(e)
                     except TypeError: s = s + float(func(e))
-                    except ValueError: raise UnsupportedIteratedType(
+                    except ValueError: raise UnsupportedIteratedTypeError(
                         'Pinq.average() requires number-like iterated types'
                         ' that support addition and division by int or can be'
                         ' converted to float.'
@@ -145,7 +149,7 @@ class Pinq:
             if func is None:
                 try: s = sum(self._iterable)
                 except: TypeError: s = sum(map(float, self._iterable))
-                except: ValueError: raise UnsupportedIteratedType(
+                except: ValueError: raise UnsupportedIteratedTypeError(
                     'Pinq.average() requires number-like iterated types that'
                     ' support addition and division by int or can be converted'
                     ' to float.'
@@ -153,14 +157,14 @@ class Pinq:
             else:
                 try: s = sum(map(func, self))
                 except: TypeError: s = sum(map(func, map(float, self)))
-                except: ValueError: raise UnsupportedIteratedType(
+                except: ValueError: raise UnsupportedIteratedTypeError(
                     'Pinq.average() requires number-like iterated types that'
                     ' support addition and division by int or can be converted'
                     ' to float.'
                 )
         try: result = s / c
         except TypeError: result = float(s) / c
-        except ValueError: raise UnsupportedIteratedType(
+        except ValueError: raise UnsupportedIteratedTypeError(
             'Pinq.average() requires number-like iterated types that'
             ' support addition and division by int or can be converted'
             ' to float.'
@@ -281,7 +285,28 @@ class Pinq:
                     return item
 
         return DistinctIterator(self._iterable)
-
+    
+    def element_at(self, index):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.elementat
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/ElementAt.cs
+        https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/recipes.html#nth
+        """
+        try:
+            return self._iterable.__getitem__(index)
+        except (AttributeError, TypeError):
+            try:
+                return next(itertools.islice(self._iterable, index))
+            except StopIteration:
+                raise OutOfRangeError(
+                    'Pinq.element_at() received an index that is larger than'
+                    'the size of the iterable.'
+                )
+        except IndexError:
+            raise OutOfRangeError(
+                'Pinq.element_at() received an index that is larger than the'
+                'size of the iterable.'
+            )
 
 
 ########
