@@ -243,7 +243,8 @@ class Pinq:
         https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/DefaultIfEmpty.cs
         
         The simplest way to return a new Pinq object from the default value
-        is to use a list.
+        is to use a list. It is also more likely to be optimized than creating
+        a new DefaultIfEmptyIterator class.
         """
         if any(self._iterable):
             return self
@@ -307,6 +308,33 @@ class Pinq:
                 'Pinq.element_at() received an index that is larger than the'
                 'size of the iterable.'
             )
+    
+    def element_at_or_default(self, index, default):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.elementatordefault
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/ElementAt.cs
+        https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/recipes.html#nth
+        """
+        try:
+            return self._iterable.__getitem__(index)
+        except (AttributeError, TypeError):
+            try:
+                return next(itertools.islice(self._iterable, index))
+            except StopIteration:
+                return default
+        except IndexError:
+            return default
+    
+    def empty(self):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.empty
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Enumerable.SizeOpt.cs
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Enumerable.SpeedOpt.cs
+        
+        Since Python doesn't bother with types, empty doesn't have to take a
+        type argument. The simplest iterable is a list.
+        """
+        return Pinq([])
 
 
 ########
