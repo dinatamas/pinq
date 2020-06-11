@@ -335,6 +335,44 @@ class Pinq:
         type argument. The simplest iterable is a list.
         """
         return Pinq([])
+    
+    def except(self, first, second, comparer):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.except
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Except.cs
+
+        Special cases: set, dict
+        """
+        class ExceptIterator(Pinq):
+            def __init__(self, first, second, comparer):
+                self._first = first
+                self._second = second
+                self._comparer = comparer
+            
+            def __iter__(self):
+                self._seenset = set()
+                self._seenset_add = _seenset.add
+                self._seenlist = []
+                self._seenlist_add = _seenlist.append
+                for item in self._second:
+                    try:
+                        self._seenset_add(item)
+                    except TypeError:
+                        if item not in self._seenlist:
+                            self._seenlist_add(item)
+                return self
+            
+            def __next__(self):
+                item = next(self._iterable)
+                if item not in self._seenset:
+                    self._seenset_add(item)
+                    return item
+                except TypeError:
+                    if item not in self._seenlist:
+                        self._seenlist_add(item)
+                    return item
+        
+
 
 
 ########

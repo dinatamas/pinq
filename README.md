@@ -46,6 +46,7 @@ Implementation details
   it's normal to have different references to the same data in memory, so it shouldn't be a problem.
 
 * self._iterable should be iterated instead of self, as it avoids a tiny bit of overhead. 
+* pinq-methods shouldn't rely on each other, it is more efficient and makes it easier to modify individual methods later
 
 Algorithm details:
 ------------------
@@ -70,6 +71,7 @@ Todos
     add specific functionality (optimisations) for their specific types for LINQ.
     * Use special methods for builtins. (Check iterable's type in `__init__`)
 * Handle infinite iterables (many method)s will hit an infinite loop!)
+* Support iterables of unhashables to be converted to iterables of hashables for performance gain.
 
 References
 ==========
