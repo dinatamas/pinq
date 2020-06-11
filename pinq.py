@@ -104,7 +104,7 @@ class Pinq:
         count. Many collections have the __len__ method, but not all iterables,
         so average cant't rely on that. It is still attempted for the potential
         performance gain. For best performance summing and counting should be
-        sperformed in the same loop.
+        performed in the same loop.
 
         The len method shouldn't be used! Because if the len is implemented by
         the class by looping through and counting, the worst case scenario
@@ -232,6 +232,56 @@ class Pinq:
             for _ in map(predicate, self._iterable):
                 count += 1
             return count
+    
+    def default_if_empty(self, default_value):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.defaultifempty
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/DefaultIfEmpty.cs
+        
+        The simplest way to return a new Pinq object from the default value
+        is to use a list.
+        """
+        if any(self._iterable):
+            return self
+        return Pinq([default_value])
+    
+    def distinct(self):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.distinct
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Distinct.cs
+        
+        The original implementation uses sets too.
+        This implementation is similar to:
+        https://more-itertools.readthedocs.io/en/stable/api.html#more_itertools.unique_everseen
+        https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/recipes.html#unique_everseen
+
+        #TODO(rm9wia@inf.elte.hu): Are _seenset_add and _seenlist_add important?
+        Special cases:
+            set, dictionary, and the 'key' keyword to transform to tuples (hashable).
+        """
+        class DistinctIterator(Pinq):
+            def __init__(self, iterable):
+                self._iterable = iterable
+            
+            def __iter__(self):
+                self._seenset = set()
+                self._seenset_add = _seenset.add
+                self._seenlist = []
+                self._seenlist_add = _seenlist.append
+                return self
+            
+            def __next__(self):
+                item = next(self._iterable)
+                if item not in self._seenset:
+                    self._seenset_add(item)
+                    return item
+                except TypeError:
+                    if item not in self._seenlist:
+                        self._seenlist_add(item)
+                    return item
+
+        return DistinctIterator(self._iterable)
+
 
 
 ########

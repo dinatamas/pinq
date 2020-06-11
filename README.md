@@ -68,7 +68,8 @@ Todos
     * https://stackoverflow.com/questions/514068/extension-methods-in-python
     * These can't be used for builtins, but can be used to enable other users to 
     add specific functionality (optimisations) for their specific types for LINQ.
-* Handle infinite iterables (many methods will hit an infinite loop!)
+    * Use special methods for builtins. (Check iterable's type in `__init__`)
+* Handle infinite iterables (many method)s will hit an infinite loop!)
 
 References
 ==========
@@ -120,3 +121,4 @@ Python reading (for implementation details)
 * https://github.com/python/cpython/blob/master/Modules/_functoolsmodule.c
 * https://docs.python.org/3.8/library/itertools.html
 * https://github.com/python/cpython/blob/master/Modules/itertoolsmodule.c
+* https://pypi.org/project/more-itertools/
