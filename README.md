@@ -72,6 +72,7 @@ Todos
     * Use special methods for builtins. (Check iterable's type in `__init__`)
 * Handle infinite iterables (many method)s will hit an infinite loop!)
 * Support iterables of unhashables to be converted to iterables of hashables for performance gain.
+* Consider using a _marker=object() to detect when a default is not provided
 
 References
 ==========

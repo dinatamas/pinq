@@ -14,11 +14,15 @@ class NoElementsError(Exception):
     pass
 
 
-class UnsupportedIteratedTypeError(Exception):
+class NoMatchError(Exception):
     pass
 
 
 class OutOfRangeError(Exception):
+    pass
+
+
+class UnsupportedIteratedTypeError(Exception):
     pass
 
 
@@ -372,7 +376,24 @@ class Pinq:
                         self._seenlist_add(item)
                     return item
         
+        return ExceptIterator(self._iterable)
 
+    def first(self, predicate):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.first
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/First.cs
+        https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/more.html#first
+        """
+        if predicate is None:
+            try:
+                next(iter(self._iterable))
+            except StopIteration:
+                raise NoElementsError('Called Pinq.first() on empty iterable.')
+        else:
+            try:
+                next(filter(predicate, self._iterable))
+            except StopIteration:
+                raise NoMatchError('Pinq.first() found no matching elements.')
 
 
 ########
