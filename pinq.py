@@ -386,14 +386,31 @@ class Pinq:
         """
         if predicate is None:
             try:
-                next(iter(self._iterable))
+                return next(iter(self._iterable))
             except StopIteration:
                 raise NoElementsError('Called Pinq.first() on empty iterable.')
         else:
             try:
-                next(filter(predicate, self._iterable))
+                return next(filter(predicate, self._iterable))
             except StopIteration:
                 raise NoMatchError('Pinq.first() found no matching elements.')
+    
+    def first_or_default(self, predicate, default):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.firstordefault
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/First.cs
+        https://more-itertools.readthedocs.io/en/stable/_modules/more_itertools/more.html#first
+        """
+        if predicate is None:
+            try:
+                return next(iter(self._iterable))
+            except StopIteration:
+                return default
+        else:
+            try:
+                return next(filter(predicate, self._iterable))
+            except StopIteration:
+                return default
 
 
 ########
