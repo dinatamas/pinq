@@ -411,6 +411,34 @@ class Pinq:
                 return next(filter(predicate, self._iterable))
             except StopIteration:
                 return default
+    
+    def group_by(self, key_selector, element_selector, result_selector, comparer):
+        """
+        https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.groupby
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Grouping.cs
+        https://github.com/dotnet/runtime/blob/master/src/libraries/System.Linq/src/System/Linq/Lookup.cs
+        https://codereview.stackexchange.com/questions/732/implementation-of-groupbytkey-telement-in-net
+
+        Simple solution: itertools.groupby(sorted(map(element_selector, self._iterable)), key_selector)
+        Or something similar, with result_selector and comparer as well.
+        """
+        class GroupByIterator(Pinq):
+            def __init__(self, iterable, key_selector, element_selector, result_selector, comparer):
+                pass
+            
+            def __iter__(self):
+                pass
+            
+            def __next__(self):
+                pass
+        
+        class Grouping:
+            def __init__(self, key):
+        
+        return GroupByIterator(
+            self._iterable, key_selector, element_selector,
+            result_selector, comparer
+        )
 
 
 ########

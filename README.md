@@ -89,6 +89,7 @@ LINQ
 * https://en.wikipedia.org/wiki/Language_Integrated_Query
 * https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/
 * https://github.com/Microsoft/referencesource/blob/master/System.Core/System/Linq/Enumerable.cs
+* https://codeblog.jonskeet.uk/2011/02/23/reimplementing-linq-to-objects-part-45-conclusion-and-list-of-posts/
 
 ### List of all operations:
 * https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable?view=netcore-3.1#methods
